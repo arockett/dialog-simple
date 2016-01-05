@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">dialog-simple</string>
     <string name="action_new">New</string>
-    <string name="action_load">Load</string>
-    <string name="action_save">Save</string>
+    <string name="load">Load</string>
+    <string name="save">Save</string>
+    <string name="discard">Discard</string>
 </resources>

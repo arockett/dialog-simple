@@ -4,10 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by Aaron Beckett on 1/5/2016.
@@ -15,6 +17,21 @@ import java.io.Serializable;
 public class LogView extends View {
 
     /************************** MEMBERS *****************************/
+
+    /**
+     * Key that is used to save the state of our parameters in a bundle
+     */
+    private static final String STATE_PARAMETERS = "state_parameters";
+
+    /**
+     * {@link FreeDrawView} that is used to make new annotations
+     */
+    private FreeDrawView freeDrawView;
+
+    /**
+     * The annotations that have been made on the current page
+     */
+    private ArrayList<Annotation> annotations = new ArrayList<>();
 
     /**
      * The current parameters
@@ -55,6 +72,23 @@ public class LogView extends View {
 
     private void init(AttributeSet attrs, int defStyle) {
 
+    }
+
+    public void saveState(Bundle bundle) {
+
+        bundle.putSerializable(STATE_PARAMETERS, params);
+
+        if (freeDrawView != null) {
+            freeDrawView.saveState(bundle);
+        }
+    }
+
+    public void loadState(Bundle savedInstanceState) {
+        params = (Parameters)savedInstanceState.getSerializable(STATE_PARAMETERS);
+
+        if (freeDrawView != null) {
+            freeDrawView.loadState(savedInstanceState);
+        }
     }
 
     /************************** METHODS *****************************/
@@ -103,6 +137,17 @@ public class LogView extends View {
         canvas.restore();
     }
 
+    public void startAnnotation() {
+        freeDrawView.enable();
+    }
+
+    public void finishAnnotation(boolean discard) {
+        Annotation newAnnot = freeDrawView.disable();
+        if (!discard && !newAnnot.isEmpty()) {
+            annotations.add(newAnnot);
+        }
+    }
+
     /********************** GETTERS AND SETTERS **********************/
 
     /**
@@ -114,6 +159,10 @@ public class LogView extends View {
 
         imageBitmap = BitmapFactory.decodeFile(imagePath);
         invalidate();
+    }
+
+    public void setFreeDrawView(FreeDrawView freeDrawView) {
+        this.freeDrawView = freeDrawView;
     }
 
     /************************ NESTED CLASSES ***************************/

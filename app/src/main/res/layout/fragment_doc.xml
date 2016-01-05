@@ -2,13 +2,48 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context=".DocActivityFragment">
 
-    <edu.msu.becketta.dialog_simple.LogView
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/logView"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:background="#d8d8d8" />
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/annotationButtons">
+
+        <edu.msu.becketta.dialog_simple.LogView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/logView"
+            android:background="#d8d8d8" />
+
+        <edu.msu.becketta.dialog_simple.FreeDrawView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/freeDrawView" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/annotationButtons"
+        style="@android:style/ButtonBar"
+        android:visibility="gone">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:id="@+id/saveAnnotButton"
+            android:layout_weight="1"
+            style="@android:style/ButtonBar" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/discard"
+            android:id="@+id/discardAnnotButton"
+            android:layout_weight="1"
+            style="@android:style/ButtonBar" />
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
@@ -22,4 +57,5 @@
         android:src="@mipmap/ic_pencil"
         android:visibility="invisible"
         android:layout_margin="24dp" />
+
 </RelativeLayout>
