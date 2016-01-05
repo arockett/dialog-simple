@@ -1,5 +1,5 @@
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/fragment"
-    android:name="edu.msu.becketta.dialog_simple.DocActivityFragment"
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/log_fragment"
+    android:name="edu.msu.becketta.dialog_simple.LogActivityFragment"
     tools:layout="@layout/fragment_doc" android:layout_width="match_parent"
     android:layout_height="match_parent" />
