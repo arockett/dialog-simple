@@ -62,7 +62,7 @@ public class FreeDrawView extends View {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(Color.argb(190, 235, 68, 68));
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -83,8 +83,8 @@ public class FreeDrawView extends View {
 
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-
     }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
