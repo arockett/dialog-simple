@@ -4,8 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import java.io.Serializable;
@@ -32,6 +36,7 @@ public class LogView extends View {
      * The annotations that have been made on the current page
      */
     private ArrayList<Annotation> annotations = new ArrayList<>();
+    private ArrayList<Path> paths = new ArrayList<>();
 
     /**
      * The current parameters
@@ -42,6 +47,14 @@ public class LogView extends View {
      * The image bitmap. None initially.
      */
     private Bitmap imageBitmap = null;
+
+    /**
+     * The annotation canvas, bitmap, and paint
+     */
+    private Canvas annotCanvas;
+    private Bitmap annotBitmap;
+    private Paint annotBitmapPaint;
+    private Paint annotPaint;
 
     /**
      * First touch status
@@ -71,7 +84,24 @@ public class LogView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
+        annotBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
+        annotPaint = new Paint();
+        annotPaint.setAntiAlias(true);
+        annotPaint.setDither(true);
+        annotPaint.setColor(Color.argb(190, 235, 68, 68));
+        annotPaint.setStyle(Paint.Style.STROKE);
+        annotPaint.setStrokeJoin(Paint.Join.ROUND);
+        annotPaint.setStrokeCap(Paint.Cap.ROUND);
+        annotPaint.setStrokeWidth(12);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        annotBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        annotCanvas = new Canvas(annotBitmap);
     }
 
     public void saveState(Bundle bundle) {
@@ -103,9 +133,9 @@ public class LogView extends View {
 
         if (params.imageScale == -1f) {
             /*
-         * Determine the margins and scale to draw the image
-         * centered and scaled to maximum size on any display
-         */
+             * Determine the margins and scale to draw the image
+             * centered and scaled to maximum size on any display
+             */
             // Get the canvas size
             float wid = canvas.getWidth();
             float hit = canvas.getHeight();
@@ -127,6 +157,7 @@ public class LogView extends View {
             params.marginTop = (hit - iHit) / 2;
         }
 
+        // TODO: address scrolling and scaling
         /*
          * Draw the image bitmap
          */
@@ -135,6 +166,16 @@ public class LogView extends View {
         canvas.scale(params.imageScale, params.imageScale);
         canvas.drawBitmap(imageBitmap, 0, 0, null);
         canvas.restore();
+
+        /*
+         * Draw the annotations
+         */
+        if (annotBitmap != null && !paths.isEmpty()) {
+            for (Path path : paths) {
+                annotCanvas.drawPath(path, annotPaint);
+            }
+            canvas.drawBitmap(annotBitmap, 0, 0, annotBitmapPaint);
+        }
     }
 
     public void startAnnotation() {
@@ -145,6 +186,7 @@ public class LogView extends View {
         Annotation newAnnot = freeDrawView.disable();
         if (!discard && !newAnnot.isEmpty()) {
             annotations.add(newAnnot);
+            paths.add(newAnnot.getPath());
         }
     }
 
