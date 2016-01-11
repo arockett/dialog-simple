@@ -74,7 +74,8 @@ public class MainLogActivity extends AppCompatActivity {
     }
 
     private void saveLog() {
-
+        LogActivityFragment fragment = (LogActivityFragment) getSupportFragmentManager().findFragmentById(R.id.log_fragment);
+        fragment.saveLog();
     }
 
     @Override
@@ -104,7 +105,7 @@ public class MainLogActivity extends AppCompatActivity {
             if(path != null) {
                 // send this image path to the Log fragment
                 LogActivityFragment fragment = (LogActivityFragment) getSupportFragmentManager().findFragmentById(R.id.log_fragment);
-                fragment.setImagePath(path);
+                fragment.startNewLog(path);
             }
         }
     }

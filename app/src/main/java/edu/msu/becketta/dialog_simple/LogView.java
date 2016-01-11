@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -35,7 +36,7 @@ public class LogView extends View {
     /**
      * The annotations that have been made on the current page
      */
-    private ArrayList<Annotation> annotations = new ArrayList<>();
+    private diaLog currentLog;
     private ArrayList<Path> paths = new ArrayList<>();
 
     /**
@@ -178,6 +179,27 @@ public class LogView extends View {
         }
     }
 
+    public void newLog(String imagePath) {
+        setImagePath(imagePath);
+        paths.clear();
+        currentLog = new diaLog();
+        currentLog.setImage(imageBitmap);
+
+        File f = new File(imagePath);
+        currentLog.setName(f.getName());
+    }
+
+    public void loadLog(diaLog log) {
+        Log.i("Action", "Load");
+        imageBitmap = log.getImage();
+        paths.clear();
+        paths = log.getPaths();
+    }
+
+    public void saveLog() {
+        Log.i("Action", "Save");
+    }
+
     public void startAnnotation() {
         freeDrawView.enable();
     }
@@ -185,7 +207,7 @@ public class LogView extends View {
     public void finishAnnotation(boolean discard) {
         Annotation newAnnot = freeDrawView.disable();
         if (!discard && !newAnnot.isEmpty()) {
-            annotations.add(newAnnot);
+            currentLog.addAnnotation(newAnnot);
             paths.add(newAnnot.getPath());
         }
     }

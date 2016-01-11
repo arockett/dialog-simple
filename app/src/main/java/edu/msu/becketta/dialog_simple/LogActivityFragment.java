@@ -93,10 +93,25 @@ public class LogActivityFragment extends Fragment {
         logView.saveState(outState);
     }
 
-    public void setImagePath(String path) {
-        logView.setImagePath(path);
+    public void startNewLog(String path) {
+        logView.newLog(path);
         currentMode = Mode.READ;
         updateUI();
+    }
+
+    public void loadLog(diaLog log) {
+        logView.loadLog(log);
+        currentMode = Mode.READ;
+        updateUI();
+    }
+
+    public void saveLog() {
+        if (currentMode != Mode.DISABLED) {
+            if (currentMode == Mode.ANNOTATE) {
+                discardAnnotation();
+            }
+            logView.saveLog();
+        }
     }
 
     public void startAnnotating() {
