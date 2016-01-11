@@ -7,13 +7,19 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -179,25 +185,26 @@ public class LogView extends View {
         }
     }
 
-    public void newLog(String imagePath) {
-        setImagePath(imagePath);
-        paths.clear();
+    public void newLog(String name, Uri imageUri) {
         currentLog = new diaLog();
-        currentLog.setImage(imageBitmap);
 
-        File f = new File(imagePath);
-        currentLog.setName(f.getName());
+        setImageUri(imageUri);
+        paths.clear();
+
+        currentLog.setName(name);
     }
 
     public void loadLog(diaLog log) {
-        Log.i("Action", "Load");
-        imageBitmap = log.getImage();
+        setImageUri(log.getImageUri());
         paths.clear();
         paths = log.getPaths();
     }
 
     public void saveLog() {
-        Log.i("Action", "Save");
+        currentLog.setImageUri(params.imageUri);
+
+        LocalBase localBase = LocalBase.getInstance(getContext());
+        localBase.saveLog(currentLog);
     }
 
     public void startAnnotation() {
@@ -215,14 +222,90 @@ public class LogView extends View {
     /********************** GETTERS AND SETTERS **********************/
 
     /**
-     * Set an image path
-     * @param imagePath path to image file
+     * Set an image URI based on a string representation.
+     * @param imageUri Uri for the image file
      */
-    public void setImagePath(String imagePath) {
-        params.imagePath = imagePath;
+    public void setImageUri(String imageUri) {
+        // We'll clear the old URI until we know a new one
+        imageBitmap = null;
+        params.imageUri = "";
 
-        imageBitmap = BitmapFactory.decodeFile(imagePath);
+        if(imageUri != null) {
+            Uri uri = Uri.parse(imageUri);
+            setImageUri(uri);
+        }
+
         invalidate();
+    }
+
+    /**
+     * Set the image URI. Load an image from any source,
+     * including external sources.
+     * @param uri URI for the image
+     */
+    public void setImageUri(final Uri uri) {
+        final String scheme = uri.getScheme();
+        if(scheme == null) {
+            // If no scheme, we have no image
+            imageBitmap = null;
+            params.imageUri = "";
+            return;
+        }
+
+        new Thread(new Runnable() {
+
+            /**
+             * Run the thread that loads the image
+             */
+            @Override
+            public void run() {
+
+                boolean success = false;
+                try {
+                    // This code has been modified to load content either
+                    // from a content provider (local) or an arbitrary URL
+                    // (internet)
+                    InputStream input;
+                    if(scheme.equals("content")) {
+                        input = getContext().getContentResolver().openInputStream(uri);
+                    } else {
+                        URL url = new URL(uri.toString());
+                        input = url.openStream();
+                    }
+
+                    imageBitmap = BitmapFactory.decodeStream(input);
+                    input.close();
+                    params.imageUri = uri.toString();
+
+                    success = true;
+
+                } catch(FileNotFoundException ex) {
+                    // All of these are empty, since we
+                    // indicate an exception by leaving success
+                    // set to false.
+                } catch(MalformedURLException ex) {
+                } catch(IOException ex) {
+                }
+
+                if(!success) {
+                    imageBitmap = null;
+                    params.imageUri = "";
+                }
+
+                /**
+                 * Post execute in the UI thread to invalidate and
+                 * force a redraw.
+                 */
+                post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        invalidate();
+                    }
+                });
+            }
+
+        }).start();
     }
 
     public void setFreeDrawView(FreeDrawView freeDrawView) {
@@ -235,7 +318,7 @@ public class LogView extends View {
         /**
          * Path to the image file if one exists
          */
-        public String imagePath = null;
+        public String imageUri = "";
 
         /**
          * Image drawing scale

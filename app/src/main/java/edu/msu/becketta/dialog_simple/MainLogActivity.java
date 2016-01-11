@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.File;
+
 public class MainLogActivity extends AppCompatActivity {
 
     /************************** MEMBERS *****************************/
@@ -102,11 +104,15 @@ public class MainLogActivity extends AppCompatActivity {
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             cursor.close();
 
+            String name = "";
             if(path != null) {
-                // send this image path to the Log fragment
-                LogActivityFragment fragment = (LogActivityFragment) getSupportFragmentManager().findFragmentById(R.id.log_fragment);
-                fragment.startNewLog(path);
+                File f = new File(path);
+                name = f.getName();
             }
+
+            // send this image path to the Log fragment
+            LogActivityFragment fragment = (LogActivityFragment) getSupportFragmentManager().findFragmentById(R.id.log_fragment);
+            fragment.startNewLog(name, imageUri);
         }
     }
 

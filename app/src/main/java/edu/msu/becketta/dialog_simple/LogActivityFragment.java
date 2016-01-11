@@ -1,5 +1,6 @@
 package edu.msu.becketta.dialog_simple;
 
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -93,8 +94,8 @@ public class LogActivityFragment extends Fragment {
         logView.saveState(outState);
     }
 
-    public void startNewLog(String path) {
-        logView.newLog(path);
+    public void startNewLog(String name, Uri uri) {
+        logView.newLog(name, uri);
         currentMode = Mode.READ;
         updateUI();
     }

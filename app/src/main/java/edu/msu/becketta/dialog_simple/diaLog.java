@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class diaLog {
 
     private String name;
-    private Bitmap image;
+    private String imageUri = null;
     private ArrayList<Annotation> annotations = new ArrayList<>();
 
     public void addAnnotation(Annotation newAnnot) {
@@ -28,12 +28,12 @@ public class diaLog {
         return name;
     }
 
-    public void setImage(Bitmap image) {
-        this.image = image;
+    public void setImageUri(String newUri) {
+        imageUri = newUri;
     }
 
-    public Bitmap getImage() {
-        return image;
+    public String getImageUri() {
+        return imageUri;
     }
 
     public ArrayList<Path> getPaths() {
