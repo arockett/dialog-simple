@@ -3,6 +3,11 @@ package edu.msu.becketta.dialog_simple;
 import android.graphics.Path;
 import android.graphics.PointF;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -51,5 +56,48 @@ public class Annotation {
 
     public boolean isEmpty() {
         return curves.size() == 0;
+    }
+
+    public void saveAnnotationsXml(XmlSerializer xml) throws IOException {
+        xml.startTag(null, "annotation");
+
+        for (ArrayList<PointF> curve : curves) {
+            xml.startTag(null, "curve");
+
+            for (PointF point : curve) {
+                xml.startTag(null, "point");
+                xml.attribute(null, "x", Float.toString(point.x));
+                xml.attribute(null, "y", Float.toString(point.y));
+                xml.endTag(null, "point");
+            }
+
+            xml.endTag(null, "curve");
+        }
+
+        xml.endTag(null, "annotation");
+    }
+
+    public void loadAnnotationsXml(XmlPullParser xml) throws IOException, XmlPullParserException {
+        curves = new ArrayList<>();
+
+        xml.nextTag();
+        while (xml.getName().equals("curve")) {
+            xml.nextTag();
+
+            ArrayList<PointF> newCurve = new ArrayList<>();
+            while (xml.getName().equals("point")) {
+                float x = Float.parseFloat(xml.getAttributeValue(null, "x"));
+                float y = Float.parseFloat(xml.getAttributeValue(null, "y"));
+                PointF p = new PointF(x, y);
+                newCurve.add(p);
+
+                Utilities.skipToEndTag(xml);
+                xml.nextTag();
+            }
+            curves.add(newCurve);
+
+            Utilities.skipToEndTag(xml);
+            xml.nextTag();
+        }
     }
 }

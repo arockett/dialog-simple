@@ -2,7 +2,14 @@ package edu.msu.becketta.dialog_simple;
 
 import android.graphics.Bitmap;
 import android.graphics.Path;
+import android.graphics.PointF;
+import android.net.Uri;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -16,6 +23,35 @@ public class diaLog {
 
     public void addAnnotation(Annotation newAnnot) {
         annotations.add(newAnnot);
+    }
+
+    public void saveAnnotationsXml(XmlSerializer xml) throws IOException {
+        xml.startTag(null, "diaLog");
+
+        xml.attribute(null, "name", name);
+        for (Annotation annot : annotations) {
+            annot.saveAnnotationsXml(xml);
+        }
+
+        xml.endTag(null, "diaLog");
+    }
+
+    public void loadAnnotationsXml(XmlPullParser xml) throws IOException, XmlPullParserException {
+        name = xml.getAttributeValue(null, "name");
+
+        annotations = new ArrayList<>();
+
+        xml.nextTag();
+        while (xml.getName().equals("annotation")) {
+            xml.nextTag();
+
+            Annotation newAnnot = new Annotation();
+            newAnnot.loadAnnotationsXml(xml);
+            annotations.add(newAnnot);
+
+            Utilities.skipToEndTag(xml);
+            xml.nextTag();
+        }
     }
 
     /********************** GETTERS AND SETTERS **********************/
