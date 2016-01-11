@@ -1,7 +1,6 @@
 package edu.msu.becketta.dialog_simple;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -72,7 +71,8 @@ public class MainLogActivity extends AppCompatActivity {
     }
 
     private void loadLog() {
-
+        LoadDlg dlg = new LoadDlg();
+        dlg.show(getFragmentManager(), "load");
     }
 
     private void saveLog() {

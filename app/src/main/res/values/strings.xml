@@ -1,7 +1,13 @@
 <resources>
     <string name="app_name">dialog-simple</string>
+
     <string name="action_new">New</string>
     <string name="load">Load</string>
     <string name="save">Save</string>
     <string name="discard">Discard</string>
+
+    <string name="open_dialog_title">Open diaLog</string>
+    <string name="catalog_fail">Failed to load diaLogs</string>
+
+    <string name="dummy">Dummy</string>
 </resources>

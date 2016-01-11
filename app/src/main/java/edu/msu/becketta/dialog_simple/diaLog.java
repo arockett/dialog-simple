@@ -1,9 +1,6 @@
 package edu.msu.becketta.dialog_simple;
 
-import android.graphics.Bitmap;
 import android.graphics.Path;
-import android.graphics.PointF;
-import android.net.Uri;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -29,6 +26,7 @@ public class diaLog {
         xml.startTag(null, "diaLog");
 
         xml.attribute(null, "name", name);
+        xml.attribute(null, "uri", imageUri != null ? imageUri : "");
         for (Annotation annot : annotations) {
             annot.saveAnnotationsXml(xml);
         }
@@ -38,6 +36,7 @@ public class diaLog {
 
     public void loadAnnotationsXml(XmlPullParser xml) throws IOException, XmlPullParserException {
         name = xml.getAttributeValue(null, "name");
+        imageUri = xml.getAttributeValue(null, "uri");
 
         annotations = new ArrayList<>();
 
