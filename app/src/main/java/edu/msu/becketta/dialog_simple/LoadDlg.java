@@ -46,6 +46,9 @@ public class LoadDlg extends DialogFragment {
 
         final AlertDialog dlg = builder.create();
 
+        // Get a reference to the view we are going to load into
+        final LogView logView = (LogView)getActivity().findViewById(R.id.logView);
+
         // Find the list view
         ListView list = (ListView)view.findViewById(R.id.listHattings);
 
@@ -69,7 +72,7 @@ public class LoadDlg extends DialogFragment {
                  */
                 LocalBase localBase = LocalBase.getInstance(view.getContext());
                 diaLog log = localBase.loadLog(catId);
-                Log.i("Whatever", "filler");
+                logView.loadLog(log);
             }
 
         });
