@@ -51,7 +51,7 @@ public class MainLogActivity extends AppCompatActivity {
                 createNewLog();
                 break;
             case R.id.action_load:
-                loadLog();
+                chooseLogToLoad();
                 break;
             case R.id.action_save:
                 saveLog();
@@ -70,9 +70,14 @@ public class MainLogActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
     }
 
-    private void loadLog() {
+    private void chooseLogToLoad() {
         LoadDlg dlg = new LoadDlg();
         dlg.show(getFragmentManager(), "load");
+    }
+
+    public void loadLog(diaLog log) {
+        LogActivityFragment fragment = (LogActivityFragment) getSupportFragmentManager().findFragmentById(R.id.log_fragment);
+        fragment.loadLog(log);
     }
 
     private void saveLog() {

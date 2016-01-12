@@ -184,6 +184,7 @@ public class LogView extends View {
     }
 
     public void newLog(String name, Uri imageUri) {
+        params.imageScale = -1f;
         currentLog = new diaLog();
 
         setImageUri(imageUri);
@@ -193,10 +194,12 @@ public class LogView extends View {
     }
 
     public void loadLog(diaLog log) {
+        params.imageScale = -1f;
         setImageUri(log.getImageUri());
         paths.clear();
         paths = log.getPaths();
         currentLog = log;
+        invalidate();
     }
 
     public void saveLog() {

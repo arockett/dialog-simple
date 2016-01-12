@@ -42,8 +42,6 @@ public class diaLog {
 
         xml.nextTag();
         while (xml.getName().equals("annotation")) {
-            xml.nextTag();
-
             Annotation newAnnot = new Annotation();
             newAnnot.loadAnnotationsXml(xml);
             annotations.add(newAnnot);

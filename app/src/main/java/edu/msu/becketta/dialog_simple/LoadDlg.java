@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -46,8 +45,7 @@ public class LoadDlg extends DialogFragment {
 
         final AlertDialog dlg = builder.create();
 
-        // Get a reference to the view we are going to load into
-        final LogView logView = (LogView)getActivity().findViewById(R.id.logView);
+        final MainLogActivity mainLogActivity = (MainLogActivity) getActivity();
 
         // Find the list view
         ListView list = (ListView)view.findViewById(R.id.listHattings);
@@ -72,7 +70,7 @@ public class LoadDlg extends DialogFragment {
                  */
                 LocalBase localBase = LocalBase.getInstance(view.getContext());
                 diaLog log = localBase.loadLog(catId);
-                logView.loadLog(log);
+                mainLogActivity.loadLog(log);
             }
 
         });
