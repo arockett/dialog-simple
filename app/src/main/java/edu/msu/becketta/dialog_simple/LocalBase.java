@@ -1,20 +1,19 @@
 package edu.msu.becketta.dialog_simple;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.util.Xml;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 
@@ -32,7 +31,12 @@ public class LocalBase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Table Names
-    private static final String TABLE_LOGS = "Logs";
+    private static final String TABLE_LOG = "Log";
+
+    // Log Table Columns
+    private static final String KEY_LOG_ID = "id";
+    private static final String KEY_LOG_NAME = "name";
+    private static final String KEY_LOG_XML = "xml";
 
     public static synchronized LocalBase getInstance(Context context) {
         if (instance == null) {
@@ -47,12 +51,11 @@ public class LocalBase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_LOGS_TABLE = "CREATE TABLE " + TABLE_LOGS +
+        String CREATE_LOGS_TABLE = "CREATE TABLE " + TABLE_LOG +
                 "(" +
-                    "id INTEGER PRIMARY KEY, " +
-                    "name TEXT, " +
-                    "image ," +
-                    "annots " +
+                    KEY_LOG_ID + " INTEGER PRIMARY KEY, " +
+                    KEY_LOG_NAME + " TEXT, " +
+                    KEY_LOG_XML + " BLOB" +
                 ")";
 
         db.execSQL(CREATE_LOGS_TABLE);
@@ -61,7 +64,7 @@ public class LocalBase extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion != newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOGS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOG);
             onCreate(db);
         }
     }
@@ -80,7 +83,7 @@ public class LocalBase extends SQLiteOpenHelper {
 
             xml.startDocument(UTF8, true);
 
-            log.saveAnnotationsXml(xml);
+            log.saveToXml(xml);
 
             xml.endDocument();
 
@@ -92,118 +95,92 @@ public class LocalBase extends SQLiteOpenHelper {
         Log.i("XML", xmlStr);
 
         /*
-         * TODO: Insert/update database
+         * Insert/update database
          */
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put(KEY_LOG_NAME, log.getName());
+            values.put(KEY_LOG_XML, xmlStr);
+            db.insertOrThrow(TABLE_LOG, null, values);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.d("SQLite", "Error while trying to add diaLog to database");
+        } finally {
+            db.endTransaction();
+        }
 
         return true;
     }
 
-    public diaLog loadLog() {
-        diaLog log = new diaLog();
+    public diaLog loadLog(String id) {
+        /*
+         * Get the diaLog with that id from the database
+         */
+        // SELECT * FROM Log WHERE id = 'id'
+        String SELECT_QUERY = "SELECT * FROM " + TABLE_LOG +
+                " WHERE " + KEY_LOG_ID + " = " + id;
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(SELECT_QUERY, null);
+        diaLog newdiaLog = new diaLog();
+        try {
+            if (cursor.moveToFirst()) {
+                String xmlStr = cursor.getString(cursor.getColumnIndex(KEY_LOG_XML));
+                InputStream stream = new ByteArrayInputStream(xmlStr.getBytes("UTF-8"));
 
-        return log;
+                XmlPullParser xml = Xml.newPullParser();
+                xml.setInput(stream, "UTF-8");
+                xml.nextTag();
+                xml.require(XmlPullParser.START_TAG, null, "diaLog");
+                newdiaLog.loadFromXml(xml);
+            }
+        } catch (Exception e) {
+            Log.d("SQLite", "Error while trying to get diaLogs from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return newdiaLog;
+    }
+
+    public ArrayList<Item> getdiaLogs() {
+        ArrayList<Item> diaLogItems = new ArrayList<>();
+
+        /*
+         * Get the diaLogs from the local database
+         */
+        // SELECT * FROM Log
+        String SELECT_QUERY = "SELECT * FROM " + TABLE_LOG;
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(SELECT_QUERY, null);
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    Item newItem = new Item();
+                    newItem.id = cursor.getString(cursor.getColumnIndex(KEY_LOG_ID));
+                    newItem.name = cursor.getString(cursor.getColumnIndex(KEY_LOG_NAME));
+                    diaLogItems.add(newItem);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.d("SQLite", "Error while trying to get diaLogs from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+
+        return diaLogItems;
     }
 
     /**
      * Nested class to store one catalog row
      */
-    private static class Item {
+    public class Item {
         public String name = "";
         public String id = "";
-    }
-
-    /**
-     * An adapter so that list boxes can display a list of filenames from
-     * the cloud server.
-     */
-    public static class CatalogAdapter extends BaseAdapter {
-
-        /**
-         * The items we display in the list box. Initially this is
-         * null until we get items from the server.
-         */
-        private ArrayList<Item> items = new ArrayList<Item>();
-
-        /**
-         * Constructor
-         */
-        public CatalogAdapter(final View view) {
-            // Create a thread to load the catalog
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    ArrayList<Item> newItems = getCatalog();
-                    if (newItems != null) {
-
-                        items = newItems;
-
-                        view.post(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                // Tell the adapter the data set has been changed
-                                notifyDataSetChanged();
-                            }
-
-                        });
-                    } else {
-                        // Error condition!
-                        view.post(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                Toast.makeText(view.getContext(), R.string.catalog_fail, Toast.LENGTH_SHORT).show();
-                            }
-
-                        });
-                    }
-                }
-            }).start();
-        }
-
-        public ArrayList<Item> getCatalog() {
-            ArrayList<Item> newItems = new ArrayList<Item>();
-
-            /*
-             * TODO: Get the diaLogs for the local database
-             */
-
-            return newItems;
-        }
-
-        public String getId(int position) {
-            return items.get(position).id;
-        }
-        public String getName(int position) {
-            return items.get(position).name;
-        }
-
-        @Override
-        public int getCount() {
-            return items.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return items.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View view, ViewGroup parent) {
-            if(view == null) {
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.catalog_item, parent, false);
-            }
-
-            TextView tv = (TextView)view.findViewById(R.id.textItem);
-            tv.setText(items.get(position).name);
-
-            return view;
-        }
     }
 }

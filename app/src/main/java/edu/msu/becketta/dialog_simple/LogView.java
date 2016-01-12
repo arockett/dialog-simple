@@ -196,6 +196,7 @@ public class LogView extends View {
         setImageUri(log.getImageUri());
         paths.clear();
         paths = log.getPaths();
+        currentLog = log;
     }
 
     public void saveLog() {

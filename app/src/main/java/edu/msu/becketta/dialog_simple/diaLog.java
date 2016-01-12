@@ -22,7 +22,7 @@ public class diaLog {
         annotations.add(newAnnot);
     }
 
-    public void saveAnnotationsXml(XmlSerializer xml) throws IOException {
+    public void saveToXml(XmlSerializer xml) throws IOException {
         xml.startTag(null, "diaLog");
 
         xml.attribute(null, "name", name);
@@ -34,7 +34,7 @@ public class diaLog {
         xml.endTag(null, "diaLog");
     }
 
-    public void loadAnnotationsXml(XmlPullParser xml) throws IOException, XmlPullParserException {
+    public void loadFromXml(XmlPullParser xml) throws IOException, XmlPullParserException {
         name = xml.getAttributeValue(null, "name");
         imageUri = xml.getAttributeValue(null, "uri");
 

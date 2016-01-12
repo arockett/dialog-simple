@@ -50,7 +50,7 @@ public class LoadDlg extends DialogFragment {
         ListView list = (ListView)view.findViewById(R.id.listHattings);
 
         // Create an adapter
-        final LocalBase.CatalogAdapter adapter = new LocalBase.CatalogAdapter(list);
+        final CatalogAdapter adapter = new CatalogAdapter(list);
         list.setAdapter(adapter);
 
         list.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -67,7 +67,9 @@ public class LoadDlg extends DialogFragment {
                 /*
                  * TODO: load the diaLog, maybe use ProgressDialogBox
                  */
-                Log.i("Action", "load");
+                LocalBase localBase = LocalBase.getInstance(view.getContext());
+                diaLog log = localBase.loadLog(catId);
+                Log.i("Whatever", "filler");
             }
 
         });
