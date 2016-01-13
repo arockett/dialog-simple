@@ -184,22 +184,24 @@ public class LogView extends View {
     }
 
     public void newLog(String name, Uri imageUri) {
-        params.imageScale = -1f;
+        clear();
         currentLog = new diaLog();
-
-        setImageUri(imageUri);
-        paths.clear();
-
         currentLog.setName(name);
+        setImageUri(imageUri);
     }
 
     public void loadLog(diaLog log) {
-        params.imageScale = -1f;
+        clear();
         setImageUri(log.getImageUri());
-        paths.clear();
         paths = log.getPaths();
         currentLog = log;
         invalidate();
+    }
+
+    private void clear() {
+        params.imageScale = -1f;
+        paths.clear();
+        annotBitmap.eraseColor(Color.TRANSPARENT);
     }
 
     public void saveLog() {

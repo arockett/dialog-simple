@@ -146,6 +146,11 @@ public class LocalBase extends SQLiteOpenHelper {
         return newdiaLog;
     }
 
+    public void clearLocalLogs() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLE_LOG, null, null);
+    }
+
     public ArrayList<Item> getdiaLogs() {
         ArrayList<Item> diaLogItems = new ArrayList<>();
 
