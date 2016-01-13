@@ -82,9 +82,9 @@ public class Annotation {
 
         xml.nextTag();
         while (xml.getName().equals("curve")) {
-            xml.nextTag();
-
             ArrayList<PointF> newCurve = new ArrayList<>();
+
+            xml.nextTag();
             while (xml.getName().equals("point")) {
                 float x = Float.parseFloat(xml.getAttributeValue(null, "x"));
                 float y = Float.parseFloat(xml.getAttributeValue(null, "y"));
@@ -96,7 +96,6 @@ public class Annotation {
             }
             curves.add(newCurve);
 
-            Utilities.skipToEndTag(xml);
             xml.nextTag();
         }
     }
