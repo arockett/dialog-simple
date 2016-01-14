@@ -8,6 +8,7 @@
 
     <string name="open_dialog_title">Open diaLog</string>
     <string name="catalog_fail">Failed to load diaLogs</string>
+    <string name="save_fail">Failed to save diaLog</string>
 
     <string name="dummy">Dummy</string>
 </resources>

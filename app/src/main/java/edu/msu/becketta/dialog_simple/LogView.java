@@ -204,11 +204,11 @@ public class LogView extends View {
         annotBitmap.eraseColor(Color.TRANSPARENT);
     }
 
-    public void saveLog() {
+    public boolean saveLog() {
         currentLog.setImageUri(params.imageUri);
 
         LocalBase localBase = LocalBase.getInstance(getContext());
-        localBase.saveLog(currentLog);
+        return localBase.saveLog(currentLog);
     }
 
     public void startAnnotation() {

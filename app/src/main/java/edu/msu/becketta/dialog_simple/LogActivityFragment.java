@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -111,7 +112,11 @@ public class LogActivityFragment extends Fragment {
             if (currentMode == Mode.ANNOTATE) {
                 discardAnnotation();
             }
-            logView.saveLog();
+            if (!logView.saveLog()) {
+                Toast.makeText(this.getActivity(),
+                        R.string.save_fail,
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

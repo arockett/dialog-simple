@@ -45,7 +45,7 @@ public class diaLog {
             Annotation newAnnot = new Annotation();
             newAnnot.loadAnnotationsXml(xml);
             annotations.add(newAnnot);
-            
+
             xml.nextTag();
         }
     }

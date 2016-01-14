@@ -92,7 +92,6 @@ public class LocalBase extends SQLiteOpenHelper {
         }
 
         String xmlStr = writer.toString();
-        Log.i("XML", xmlStr);
 
         /*
          * Insert/update database
