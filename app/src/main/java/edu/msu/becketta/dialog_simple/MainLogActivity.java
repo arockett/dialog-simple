@@ -28,8 +28,8 @@ public class MainLogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_doc);
 
-        //LocalBase localBase = LocalBase.getInstance(this);
-        //localBase.clearLocalLogs();
+        LocalBase localBase = LocalBase.getInstance(this);
+        localBase.clearLocalLogs();
     }
 
 
