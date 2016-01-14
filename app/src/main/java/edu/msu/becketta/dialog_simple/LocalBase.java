@@ -102,7 +102,12 @@ public class LocalBase extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(KEY_LOG_NAME, log.getName());
             values.put(KEY_LOG_XML, xmlStr);
-            db.insertOrThrow(TABLE_LOG, null, values);
+
+            // Try updating a row with the same name
+            // If no row is effected, insert a new record
+            if(db.update(TABLE_LOG, values, "?=?", new String[]{KEY_LOG_NAME, values.getAsString(KEY_LOG_NAME)}) == 0) {
+                db.insertOrThrow(TABLE_LOG, null, values);
+            }
             db.setTransactionSuccessful();
         } catch (Exception e) {
             Log.d("SQLite", "Error while trying to add diaLog to database");
